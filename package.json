@@ -1,6 +1,6 @@
 {
   "name": "wfhelper",
-  "version": "0.0.0",
+  "version": "2.1.1",
   "description": "Warframe companion: inventory, foundry, relic and riven scanning, market orders.",
   "main": ".electron-build/main.js",
   "desktopName": "wfhelper.desktop",
@@ -32,6 +32,7 @@
     "lint:worker": "eslint backend/worker/src backend/worker/test --ext .ts",
     "check:comments": "node scripts/check-comment-style.mjs --all",
     "check:colors": "node scripts/check-color-tokens.mjs",
+    "mod:tag": "node scripts/mod-tag.mjs",
     "audit:prod": "pnpm audit --prod",
     "audit:all": "pnpm audit",
     "audit:deadcode": "knip && node scripts/check-prod-dead-exports.mjs",

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { overlayMessages, setOverlayLocale } from "../../ipc/overlayI18n";
 import de from "../../src/i18n/de.json";
+import es from "../../src/i18n/es.json";
 import zh from "../../src/i18n/zh.json";
 import { en } from "../../src/i18n/en";
 
@@ -62,6 +63,7 @@ const placeholders = (value: string): string[] =>
 // be an allow-list rather than a gate.
 const TRANSLATIONS: Array<[string, Record<string, string>]> = [
   ["German", de],
+  ["Spanish", es],
   ["Chinese", zh],
 ];
 
@@ -100,6 +102,14 @@ describe("i18n dictionaries", () => {
     expect(untranslated).toEqual([]);
   });
 
+  it("translates every key Spanish is expected to carry", () => {
+    const untranslated = Object.keys(en).filter(
+      (key) => !(key in es) && !ENGLISH_ONLY.includes(key) && !LANGUAGE_NEUTRAL.test(key),
+    );
+
+    expect(untranslated).toEqual([]);
+  });
+
   it("translates every key Chinese is expected to carry", () => {
     const untranslated = Object.keys(en).filter(
       (key) =>
@@ -113,7 +123,12 @@ describe("i18n dictionaries", () => {
   });
 
   it("spells ellipses as three ASCII dots", () => {
-    const unicode = [...Object.entries(en), ...Object.entries(de), ...Object.entries(zh)]
+    const unicode = [
+      ...Object.entries(en),
+      ...Object.entries(de),
+      ...Object.entries(es),
+      ...Object.entries(zh),
+    ]
       .filter(([, value]) => value.includes("…"))
       .map(([key]) => key);
 
@@ -191,7 +206,7 @@ function overlayKeysReferenced(): Set<string> {
 }
 
 describe("overlay messages", () => {
-  const locales = ["en", "de", "zh"];
+  const locales = ["en", "de", "es", "zh"];
 
   it("names only keys English defines", () => {
     setOverlayLocale("en");
