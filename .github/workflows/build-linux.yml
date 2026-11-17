@@ -1,0 +1,48 @@
+name: Build Linux AppImage
+
+on:
+  push:
+    tags:
+      - 'v2.1.1*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build main process
+        run: pnpm run build:main
+
+      - name: Build renderer
+        run: pnpm run vite build
+
+      - name: Build layer shell (Linux)
+        run: node scripts/build-layer-shell.mjs --require
+
+      - name: Build AppImage
+        run: |
+          pnpm run verify:onnx-models
+          electron-builder --linux AppImage \
+            --config electron-builder.json
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: WFHelper-Fell-Mod-linux
+          path: out/WFHelper*.AppImage
