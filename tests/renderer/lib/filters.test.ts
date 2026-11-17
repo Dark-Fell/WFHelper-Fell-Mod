@@ -236,11 +236,7 @@ describe("shared filters", () => {
     });
 
     expect(applySharedFiltersAndSort(items, defaultFilters())).toHaveLength(items.length);
-    expect(filtered.map((row) => row.name)).toEqual([
-      "Rank 0 Mod",
-      "Rank 2 Mod",
-      "Rank 30 Weapon",
-    ]);
+    expect(filtered.map((row) => row.name)).toEqual(["Rank 0 Mod", "Rank 2 Mod", "Rank 30 Weapon"]);
   });
 
   it("filters vaulted items", () => {

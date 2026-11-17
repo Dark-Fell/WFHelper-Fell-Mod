@@ -74,7 +74,9 @@ if (dirty && !allowDirty) {
   process.exit(1);
 }
 
-const localTags = git(["tag", "--list", `${TAG_PREFIX}*`]).split("\n").filter(Boolean);
+const localTags = git(["tag", "--list", `${TAG_PREFIX}*`])
+  .split("\n")
+  .filter(Boolean);
 const remoteTags = git(["ls-remote", "--tags", REMOTE])
   .split("\n")
   .filter(Boolean)
@@ -93,7 +95,9 @@ const tag = `${TAG_PREFIX}${next}`;
 const annotation = message || `WFHelper Fell Mod ${tag}`;
 
 if (dryRun) {
-  console.log(`Would create tag ${tag} on ${git(["rev-parse", "--short", "HEAD"])} (${annotation}).`);
+  console.log(
+    `Would create tag ${tag} on ${git(["rev-parse", "--short", "HEAD"])} (${annotation}).`,
+  );
   process.exit(0);
 }
 

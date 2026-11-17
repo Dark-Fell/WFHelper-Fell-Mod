@@ -450,8 +450,7 @@
           class:active={state.hideHighRankMods}
           aria-pressed={state.hideHighRankMods}
           title={$tr("inventory.hideHighRankMods")}
-          on:click={() =>
-            updateSharedFilters(scope, { hideHighRankMods: !state.hideHighRankMods })}
+          on:click={() => updateSharedFilters(scope, { hideHighRankMods: !state.hideHighRankMods })}
         >
           {$tr("inventory.hideHighRankMods")}
         </button>
