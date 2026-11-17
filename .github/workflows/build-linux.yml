@@ -6,10 +6,13 @@ on:
       - 'v2.1.1*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
@@ -20,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -29,20 +32,13 @@ jobs:
       - name: Build main process
         run: pnpm run build:main
 
-      - name: Build renderer
-        run: pnpm run vite build
+      - name: Build Linux AppImage
+        run: pnpm run dist:linux
 
-      - name: Build layer shell (Linux)
-        run: node scripts/build-layer-shell.mjs --require
-
-      - name: Build AppImage
-        run: |
-          pnpm run verify:onnx-models
-          electron-builder --linux AppImage \
-            --config electron-builder.json
-
-      - name: Upload AppImage
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: WFHelper-Fell-Mod-linux
-          path: out/WFHelper*.AppImage
+          path: |
+            release/*.AppImage
+            release/*.yml
