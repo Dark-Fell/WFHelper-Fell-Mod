@@ -52,7 +52,8 @@ export type FilterControlId =
   | "minPlatinum"
   | "minAmount"
   | "equipped"
-  | "leveledUp";
+  | "leveledUp"
+  | "hideHighRankMods";
 
 /** Per-scope bar customization. Ids only: labels and values stay derived. */
 export interface FilterLayout {
@@ -77,6 +78,8 @@ export interface SharedFiltersState {
   minimumAmount: 0 | 2;
   equipped: YesNoFilterMode;
   leveledUp: YesNoFilterMode;
+  /** Hides mods whose current rank is 3 or higher (X in the X/Y display). */
+  hideHighRankMods: boolean;
   subsumed: YesNoFilterMode;
   foundryState: FoundryStateFilterMode;
 }

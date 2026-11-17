@@ -905,6 +905,7 @@
   "inventory.noItemsFound": "No se han encontrado objetos",
   "inventory.openItemDetails": "Abrir detalles del objeto",
   "inventory.showIncompleteSets": "Mostrar conjuntos incompletos",
+  "inventory.hideHighRankMods": "Ocultar mods de rango 3 o superior",
   "inventory.everythingInclude": "Incluir",
   "inventory.title": "Inventario ({count})",
   "inventory.value.allTradables": "Todo lo comerciable",

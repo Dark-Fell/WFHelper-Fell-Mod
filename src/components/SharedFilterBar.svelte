@@ -45,8 +45,13 @@
   export let showVaulted = false;
   export let showFoundryState = false;
   export let showBuildableSets = false;
+  /** Only the tabs that can show mods offer the rank filter, so it never looks
+      inert on relics or arcanes. */
+  export let showHideHighRankMods = false;
 
-  const ADVANCED_CONTROLS = FILTER_CONTROL_IDS.filter((id) => !isBasicFilterControl(id));
+  const ADVANCED_CONTROLS = FILTER_CONTROL_IDS.filter(
+    (id) => !isBasicFilterControl(id) && id !== "hideHighRankMods",
+  );
 
   // Identifies this bar in the scope's open-popover slot; the header bar and the
   // advanced bar must never edit the same layout through two panels.
@@ -134,6 +139,9 @@
     ...(fullBasic && showVaulted ? (["vaulted"] as FilterControlId[]) : []),
     ...(fullBasic && showSubsumed ? (["subsumed"] as FilterControlId[]) : []),
     ...(isInventoryScope && showAdvanced ? ADVANCED_CONTROLS : []),
+    ...(isInventoryScope && showAdvanced && showHideHighRankMods
+      ? (["hideHighRankMods"] as FilterControlId[])
+      : []),
   ]);
   // Basic before advanced whatever the stored order says: the two are separate rows
   // of the bar, and only inventory renders both (from two bar instances).
@@ -436,6 +444,17 @@
             {/each}
           </div>
         </div>
+      {:else if id === "hideHighRankMods"}
+        <button
+          class="filter-tab"
+          class:active={state.hideHighRankMods}
+          aria-pressed={state.hideHighRankMods}
+          title={$tr("inventory.hideHighRankMods")}
+          on:click={() =>
+            updateSharedFilters(scope, { hideHighRankMods: !state.hideHighRankMods })}
+        >
+          {$tr("inventory.hideHighRankMods")}
+        </button>
       {/if}
     {/each}
 

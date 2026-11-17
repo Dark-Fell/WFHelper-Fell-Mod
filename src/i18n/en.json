@@ -909,6 +909,7 @@
   "inventory.noItemsFound": "No items found",
   "inventory.openItemDetails": "Open item details",
   "inventory.showIncompleteSets": "Show incomplete sets",
+  "inventory.hideHighRankMods": "Hide mods at rank 3 or higher",
   "inventory.everythingInclude": "Include",
   "inventory.title": "Inventory ({count})",
   "inventory.value.allTradables": "All tradables",

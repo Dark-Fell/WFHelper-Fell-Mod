@@ -697,6 +697,7 @@
     if (state.favorite !== "all") active++;
     if (state.equipped !== "all") active++;
     if (state.leveledUp !== "all") active++;
+    if (state.hideHighRankMods) active++;
     if (state.minimumPlatinum > 0) active++;
     if (state.minimumAmount > 0) active++;
     return active;
@@ -772,7 +773,12 @@
         <div
           class="inventory-filter-popover mb-3.5 max-h-[67vh] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--ui-panel-border)] bg-[var(--ui-panel-bg)] p-2.5 shadow-[var(--ui-panel-shadow)] [backdrop-filter:var(--ui-backdrop-blur)]"
         >
-          <SharedFilterBar scope="inventory" showBasic={false} showAdvanced={true} />
+          <SharedFilterBar
+            scope="inventory"
+            showBasic={false}
+            showAdvanced={true}
+            showHideHighRankMods={filter === "mods" || filter === "everything"}
+          />
         </div>
       {/if}
     </LayoutGrid>

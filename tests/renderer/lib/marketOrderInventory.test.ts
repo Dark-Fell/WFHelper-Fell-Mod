@@ -27,6 +27,7 @@ const BASE_FILTERS: SharedFiltersState = {
   minimumAmount: 0,
   equipped: "all",
   leveledUp: "all",
+  hideHighRankMods: false,
   subsumed: "all",
   foundryState: "all",
 };

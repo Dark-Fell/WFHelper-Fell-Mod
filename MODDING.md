@@ -24,10 +24,17 @@ Los tags de este fork siguen el esquema `v2.1.1.<n>`:
 
 ## Traducción al español
 
-- `src/i18n/es.json` se integró desde el `app.asar` 2.1.1 (2.745 claves, cobertura completa salvo los textos que deben quedarse en inglés).
-- Se descartó la clave `inventory.hideHighRankMods` porque no existe en el `en.json` de v2.1.1.
+- `src/i18n/es.json` se integró desde el `app.asar` 2.1.1 (2.746 claves, cobertura completa salvo los textos que deben quedarse en inglés).
+- La clave `inventory.hideHighRankMods` que traía el asar se reutiliza para el filtro de rango de la pestaña Mods.
 - Registro del idioma: `src/lib/i18n.ts` (`LocaleCode`, `LOCALE_OPTIONS`, `LOADERS`) e `ipc/overlayI18n.ts` (`DICTIONARIES`).
 - `tests/main/i18n.test.ts` valida placeholders, claves desconocidas, textos solo en inglés, elipsis, cobertura y overlays también para español.
+
+## Filtro de rango en Mods
+
+- Control `hideHighRankMods` de la barra de filtros: oculta los mods cuyo rango actual (`X` en `X/Y`) es 3 o superior.
+- El filtrado se aplica solo a `inventoryGroup === "mods"`, así que armas o warframes con rango alto no desaparecen.
+- Se muestra en las pestañas **Mods** y **Todo**, que son las que pueden contener mods.
+- Estado: `SharedFiltersState.hideHighRankMods` (`false` por defecto); se registra en `FILTER_CONTROL_IDS`, `FILTER_CONTROL_FIELDS`, `FILTER_CONTROL_LABEL_KEYS` y `FILTER_CONTROL_SUPPORT.inventory`.
 
 ## Crear un tag
 

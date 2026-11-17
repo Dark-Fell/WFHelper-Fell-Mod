@@ -424,6 +424,7 @@ describe("inventoryMarket view mapping", () => {
         minimumAmount: 0,
         equipped: "all",
         leveledUp: "all",
+        hideHighRankMods: false,
         subsumed: "all",
         foundryState: "all",
       },
@@ -1032,6 +1033,7 @@ describe("everything tab", () => {
     minimumAmount: 0,
     equipped: "all",
     leveledUp: "all",
+    hideHighRankMods: false,
     subsumed: "all",
     foundryState: "all",
   } as const;

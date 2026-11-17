@@ -901,6 +901,7 @@
   "inventory.noItemsFound": "未找到物品",
   "inventory.openItemDetails": "查看物品详情",
   "inventory.showIncompleteSets": "显示不完整的套装",
+  "inventory.hideHighRankMods": "隐藏 3 级或更高的模组",
   "inventory.everythingInclude": "包含",
   "inventory.title": "库存（{count}）",
   "inventory.value.allTradables": "全部可交易物品",

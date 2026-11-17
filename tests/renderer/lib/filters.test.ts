@@ -31,6 +31,7 @@ function defaultFilters(): SharedFiltersState {
     minimumAmount: 0,
     equipped: "all",
     leveledUp: "all",
+    hideHighRankMods: false,
     subsumed: "all",
     foundryState: "all",
   };
@@ -218,6 +219,28 @@ describe("shared filters", () => {
 
     expect(filtered).toHaveLength(1);
     expect(filtered[0].name).toBe("Normal Item");
+  });
+
+  it("hides mods at rank 3 or higher without touching other item groups", () => {
+    const items = [
+      { name: "Rank 0 Mod", inventoryGroup: "mods", rank: 0, maxRank: 10 },
+      { name: "Rank 2 Mod", inventoryGroup: "mods", rank: 2, maxRank: 10 },
+      { name: "Rank 3 Mod", inventoryGroup: "mods", rank: 3, maxRank: 10 },
+      { name: "Maxed Mod", inventoryGroup: "mods", rank: 10, maxRank: 10 },
+      { name: "Rank 30 Weapon", inventoryGroup: "primary", rank: 30, maxRank: 30 },
+    ];
+
+    const filtered = applySharedFiltersAndSort(items, {
+      ...defaultFilters(),
+      hideHighRankMods: true,
+    });
+
+    expect(applySharedFiltersAndSort(items, defaultFilters())).toHaveLength(items.length);
+    expect(filtered.map((row) => row.name)).toEqual([
+      "Rank 0 Mod",
+      "Rank 2 Mod",
+      "Rank 30 Weapon",
+    ]);
   });
 
   it("filters vaulted items", () => {

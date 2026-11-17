@@ -1201,6 +1201,7 @@
   "inventory.noItemsFound": "Keine Items gefunden",
   "inventory.openItemDetails": "Item-Details öffnen",
   "inventory.showIncompleteSets": "Unvollständige Sets anzeigen",
+  "inventory.hideHighRankMods": "Mods ab Rang 3 oder höher ausblenden",
   "inventory.everythingInclude": "Enthalten",
   "inventory.title": "Inventar ({count})",
   "inventory.value.allTradables": "Alle handelbaren Gegenstände",

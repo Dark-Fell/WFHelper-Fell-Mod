@@ -88,6 +88,8 @@ interface FilterableItem {
   masteryXpRemaining?: number | null;
   /** Undefined when no foundry state applies (already owned and mastered). */
   foundryState?: FoundryState | undefined;
+  /** Groups the inventory tab builds: "mods", "arcanes", "relics", ... */
+  inventoryGroup?: string;
   /** A blueprint for a part of something bigger, rather than the thing itself. */
   looseComponent?: boolean;
 }
@@ -231,6 +233,16 @@ export function matchesSharedFilters(item: FilterableItem, filters: SharedFilter
   if (!matchesYesNo(filters.favorite, item.favorite)) return false;
   if (!matchesYesNo(filters.equipped, item.equipped)) return false;
   if (!matchesYesNo(filters.leveledUp, item.leveledUp)) return false;
+  // The X in X/Y is the mod's current rank, not its max, so only mod rows are
+  // touched: a weapon at rank 30 in the Everything tab stays put.
+  if (
+    filters.hideHighRankMods &&
+    item.inventoryGroup === "mods" &&
+    typeof item.rank === "number" &&
+    item.rank >= 3
+  ) {
+    return false;
+  }
   // "Not ready" removes exactly the rows you could act on - a finished build to
   // claim and a blueprint whose parts are all owned - and leaves the rest.
   if (filters.foundryState === "claimable" && item.foundryState !== "claimable") return false;
@@ -327,6 +339,7 @@ export const FILTER_CONTROL_IDS: readonly FilterControlId[] = [
   "minAmount",
   "equipped",
   "leveledUp",
+  "hideHighRankMods",
 ];
 
 // The bar keeps its two rows: basic controls always render before advanced ones,
@@ -366,6 +379,7 @@ export const FILTER_CONTROL_FIELDS: Record<FilterControlId, readonly (keyof Shar
     minAmount: ["minimumAmount"],
     equipped: ["equipped"],
     leveledUp: ["leveledUp"],
+    hideHighRankMods: ["hideHighRankMods"],
   };
 
 export const FILTER_CONTROL_LABEL_KEYS: Record<FilterControlId, MessageKey> = {
@@ -386,6 +400,7 @@ export const FILTER_CONTROL_LABEL_KEYS: Record<FilterControlId, MessageKey> = {
   minAmount: "filters.amount",
   equipped: "common.equippedModsOnly",
   leveledUp: "filters.leveledUpLabel",
+  hideHighRankMods: "inventory.hideHighRankMods",
 };
 
 /** What each scope's views actually let the bar render, mirroring the props they
@@ -405,6 +420,7 @@ export const FILTER_CONTROL_SUPPORT: Record<FilterScope, readonly FilterControlI
     "minAmount",
     "equipped",
     "leveledUp",
+    "hideHighRankMods",
   ],
   mastery: ["search", "prime", "mastery", "foundryState", "vaulted", "subsumed", "sort"],
   market: ["search", "sort"],
