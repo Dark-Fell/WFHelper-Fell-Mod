@@ -577,7 +577,7 @@
                     class="font-display text-xs font-bold py-0.5 px-1.5 rounded border border-border bg-bg-raised text-accent-bright cursor-pointer uppercase tracking-[0.03em] transition-all duration-150 hover:bg-accent-bright hover:text-bg-base hover:border-accent-bright"
                     title={$tr("common.openOnWarframeMarket")}
                     onclick={() =>
-                      send("open-external", `https://warframe.market/auction/${listing.id}`)}
+                      send("open-external", `https://warframe.market/es/auction/${listing.id}`)}
                     >{$tr("rivens.detail.wfmLink")}</button
                   >
                 </div>

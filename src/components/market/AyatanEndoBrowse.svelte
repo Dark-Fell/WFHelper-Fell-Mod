@@ -203,7 +203,10 @@
   }
 
   function openProfile(entry: OrderBookEntry): void {
-    send("open-external", `https://warframe.market/profile/${encodeURIComponent(entry.userName)}`);
+    send(
+      "open-external",
+      `https://warframe.market/es/profile/${encodeURIComponent(entry.userName)}`,
+    );
   }
 
   function sortByColumn(sortKey: AyatanSortKey): void {

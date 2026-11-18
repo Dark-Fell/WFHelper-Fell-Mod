@@ -59,5 +59,5 @@ export async function loadItemPrice(
 
 /** Open an item on warframe.market by slug. */
 export function openOnWfm(slug: string | null): void {
-  if (slug) send("open-external", `https://warframe.market/items/${slug}`);
+  if (slug) send("open-external", `https://warframe.market/es/items/${slug}`);
 }

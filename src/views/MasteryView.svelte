@@ -1120,7 +1120,7 @@
                           on:click|stopPropagation={() =>
                             send(
                               "open-external",
-                              `https://warframe.market/items/${item.wfm.url_name}`,
+                              `https://warframe.market/es/items/${item.wfm.url_name}`,
                             )}
                         >
                           <svg

@@ -487,7 +487,10 @@
   }
 
   function openProfile(entry: OrderBookEntry): void {
-    send("open-external", `https://warframe.market/profile/${encodeURIComponent(entry.userName)}`);
+    send(
+      "open-external",
+      `https://warframe.market/es/profile/${encodeURIComponent(entry.userName)}`,
+    );
   }
 
   // WFM avatars aren't mirrored; when Cloudflare blocks the upstream load,
@@ -499,7 +502,7 @@
 
   function openOnWarframeMarket(): void {
     if (!selected) return;
-    send("open-external", `https://warframe.market/items/${selected.slug}`);
+    send("open-external", `https://warframe.market/es/items/${selected.slug}`);
   }
 
   function isLookupItem(value: unknown): value is WfmLookupItem {

@@ -198,7 +198,7 @@
   }
 
   function openAuction(id: string) {
-    send("open-external", `https://warframe.market/auction/${id}`);
+    send("open-external", `https://warframe.market/es/auction/${id}`);
   }
 
   function handleWeaponFocus() {

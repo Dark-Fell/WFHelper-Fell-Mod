@@ -265,7 +265,7 @@
 
   function openOnWarframeMarket(): void {
     if (!currentSlug) return;
-    send("open-external", `https://warframe.market/items/${currentSlug}`);
+    send("open-external", `https://warframe.market/es/items/${currentSlug}`);
   }
 
   function openStats(): void {
@@ -362,7 +362,10 @@
   }
 
   function openSellerProfile(entry: OrderBookEntry): void {
-    send("open-external", `https://warframe.market/profile/${encodeURIComponent(entry.userName)}`);
+    send(
+      "open-external",
+      `https://warframe.market/es/profile/${encodeURIComponent(entry.userName)}`,
+    );
   }
 
   function isLookupItem(value: unknown): value is WfmLookupItem {

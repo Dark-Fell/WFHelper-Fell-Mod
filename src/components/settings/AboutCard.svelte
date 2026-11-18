@@ -56,7 +56,7 @@
   const credits: CreditRow[] = $derived([
     {
       label: $tr("settings.creditPrices"),
-      url: "https://warframe.market",
+      url: "https://warframe.market/es",
       text: "warframe.market",
     },
     { label: $tr("settings.creditGameData"), value: $tr("settings.creditGameDataValue") },

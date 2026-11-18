@@ -1058,7 +1058,7 @@
             type="button"
             class="link-btn"
             on:click={() =>
-              send("open-external", "https://warframe.market/profile/settings#password")}
+              send("open-external", "https://warframe.market/es/profile/settings#password")}
             >{$tr("market.wfmAccountSettings")}</button
           >{steamHintParts[1] ?? ""}
         </p>
