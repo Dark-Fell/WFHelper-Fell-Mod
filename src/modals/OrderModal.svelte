@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { orderModalState, tryLockOrders, unlockOrders } from "../stores/market.js";
-  import { subtypeChoicesOf, WFM_ORDER_SUBTYPES } from "../../config/shared/wfmOrders.js";
+  import {
+    clampSellOrderQuantity,
+    subtypeChoicesOf,
+    WFM_ORDER_SUBTYPES,
+  } from "../../config/shared/wfmOrders.js";
   import { invoke, tradeInvoke } from "../lib/ipc.js";
   import { isIpcError } from "../lib/ipcGuards.js";
   import { refreshMarketOrders } from "../lib/marketOrdersSync.js";
@@ -116,7 +120,7 @@
         draft.platinum >= 1
           ? String(Math.min(99_999, Math.round(draft.platinum)))
           : "";
-      quantity = 1;
+      quantity = clampSellOrderQuantity(draft?.quantity) ?? 1;
       visible = true;
       modRank =
         typeof draft?.modRank === "number" && Number.isFinite(draft.modRank)

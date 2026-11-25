@@ -127,6 +127,8 @@ export interface OrderModalState {
     orderType?: OrderType;
     /** Pre-filled platinum price for the create form, if known. */
     platinum?: number | null;
+    /** Pre-filled quantity for the create form, e.g. owned stock. */
+    quantity?: number | null;
     modRank?: number | null;
     maxRank?: number | null;
     /** Preselected order subtype, e.g. a relic refinement. */

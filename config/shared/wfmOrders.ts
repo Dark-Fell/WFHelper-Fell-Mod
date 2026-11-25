@@ -140,6 +140,12 @@ export function lowestIngameSellPrice(entries: readonly WfmOrderPriceEntry[]): n
   return Math.min(99_999, Math.max(1, Math.round(lowest)));
 }
 
+/** Clamps a positive owned count into the valid WFM order quantity range [1, 999]. */
+export function clampSellOrderQuantity(amount: number | null | undefined): number | null {
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount < 1) return null;
+  return Math.min(999, Math.floor(amount));
+}
+
 function parseOrderRank(order: Record<string, unknown>): number | null {
   const rankRaw =
     typeof order.rank === "number"

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import {
   bestOrderPrice,
+  clampSellOrderQuantity,
   formatUnitPlatinum,
   lowestIngameSellPrice,
   normalizePerTrade,
@@ -171,6 +172,21 @@ describe("lowestIngameSellPrice", () => {
     expect(
       lowestIngameSellPrice([{ platinum: 150_000, unitPlatinum: 150_000, status: "ingame" }]),
     ).toBe(99_999);
+  });
+});
+
+describe("clampSellOrderQuantity", () => {
+  it("returns the floored owned count capped at 999", () => {
+    expect(clampSellOrderQuantity(1)).toBe(1);
+    expect(clampSellOrderQuantity(7)).toBe(7);
+    expect(clampSellOrderQuantity(4.9)).toBe(4);
+    expect(clampSellOrderQuantity(1500)).toBe(999);
+  });
+
+  it("returns null for missing or non-positive counts", () => {
+    for (const value of [null, undefined, 0, -5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(clampSellOrderQuantity(value)).toBeNull();
+    }
   });
 });
 

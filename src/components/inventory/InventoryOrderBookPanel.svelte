@@ -27,6 +27,7 @@
     resolveRankedMaxRank,
   } from "../../../config/shared/numeric.js";
   import {
+    clampSellOrderQuantity,
     formatUnitPlatinum,
     isActiveOrderStatus,
     lowestIngameSellPrice,
@@ -393,6 +394,9 @@
     const targetSubtype = itemSubtype;
     const suggestedPlatinum =
       orderType === "sell" ? lowestIngameSellPrice(orderBook?.sell ?? []) : null;
+    const rankMatchesSelected = !isRankedListingItem || targetRank === (itemRankValue ?? 0);
+    const suggestedQuantity =
+      orderType === "sell" && rankMatchesSelected ? clampSellOrderQuantity(item?.amount) : null;
 
     const session = await invoke("wfmGetSession");
     if (!session.loggedIn) {
@@ -418,6 +422,7 @@
         item: lookup,
         orderType,
         platinum: suggestedPlatinum,
+        quantity: suggestedQuantity,
         modRank: targetRank,
         maxRank: targetMaxRank,
         subtype: targetSubtype,
