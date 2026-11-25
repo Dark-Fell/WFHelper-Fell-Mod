@@ -1,6 +1,7 @@
 import "./app.css";
 import App from "./App.svelte";
 import { send } from "./lib/ipc.js";
+import { installWheelControls } from "./lib/wheelControls.js";
 import { accentGlowColor } from "./lib/theme/applyTheme.js";
 import { themeSettings } from "./stores/theme.js";
 import type { ThemeColors } from "./types/theme.js";
@@ -62,6 +63,8 @@ themeSettings.subscribe((settings) => {
 
   send("overlay-theme-updated", vars);
 });
+
+installWheelControls(document);
 
 const app = new App({ target: root });
 
