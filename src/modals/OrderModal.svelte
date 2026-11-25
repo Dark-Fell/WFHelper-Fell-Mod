@@ -110,7 +110,12 @@
     } else {
       const draftItem = (draft?.item || null) as WfmLookupItem | null;
       orderType = draft?.orderType === "buy" ? "buy" : "sell";
-      platinum = "";
+      platinum =
+        typeof draft?.platinum === "number" &&
+        Number.isFinite(draft.platinum) &&
+        draft.platinum >= 1
+          ? String(Math.min(99_999, Math.round(draft.platinum)))
+          : "";
       quantity = 1;
       visible = true;
       modRank =

@@ -125,6 +125,8 @@ export interface OrderModalState {
   draft?: {
     item?: WfmLookupItem | null;
     orderType?: OrderType;
+    /** Pre-filled platinum price for the create form, if known. */
+    platinum?: number | null;
     modRank?: number | null;
     maxRank?: number | null;
     /** Preselected order subtype, e.g. a relic refinement. */

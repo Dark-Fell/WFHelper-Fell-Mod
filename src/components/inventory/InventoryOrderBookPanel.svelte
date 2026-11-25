@@ -26,7 +26,11 @@
     isRankedGroup,
     resolveRankedMaxRank,
   } from "../../../config/shared/numeric.js";
-  import { formatUnitPlatinum, isActiveOrderStatus } from "../../../config/shared/wfmOrders.js";
+  import {
+    formatUnitPlatinum,
+    isActiveOrderStatus,
+    lowestIngameSellPrice,
+  } from "../../../config/shared/wfmOrders.js";
   import { ayatanSculptureBySlug } from "../../../config/shared/ayatanEndo.js";
   import { ayatanOrderWhisper } from "../../lib/wfm/ayatanListings.js";
 
@@ -383,6 +387,12 @@
 
   async function openPostOrder(orderType: "sell" | "buy"): Promise<void> {
     if (!currentSlug) return;
+    const targetSlug = currentSlug;
+    const targetRank = requestRank;
+    const targetMaxRank = isRankedListingItem ? itemMaxRankValue : null;
+    const targetSubtype = itemSubtype;
+    const suggestedPlatinum =
+      orderType === "sell" ? lowestIngameSellPrice(orderBook?.sell ?? []) : null;
 
     const session = await invoke("wfmGetSession");
     if (!session.loggedIn) {
@@ -390,7 +400,8 @@
       return;
     }
 
-    const lookup = await invoke("wfmLookupItemBySlug", currentSlug);
+    const lookup = await invoke("wfmLookupItemBySlug", targetSlug);
+    if (currentSlug !== targetSlug) return;
     if (isLookupError(lookup)) {
       setFeedback(lookup.error || $tr("orderbook.prepareOrderFailed"));
       return;
@@ -406,9 +417,10 @@
       draft: {
         item: lookup,
         orderType,
-        modRank: requestRank,
-        maxRank: isRankedListingItem ? itemMaxRankValue : null,
-        subtype: itemSubtype,
+        platinum: suggestedPlatinum,
+        modRank: targetRank,
+        maxRank: targetMaxRank,
+        subtype: targetSubtype,
       },
     });
   }

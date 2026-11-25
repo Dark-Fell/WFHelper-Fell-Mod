@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import {
   bestOrderPrice,
   formatUnitPlatinum,
+  lowestIngameSellPrice,
   normalizePerTrade,
   normalizeWfmOrderBookSide,
 } from "../../config/shared/wfmOrders";
@@ -132,6 +133,44 @@ describe("bestOrderPrice", () => {
     expect(bestOrderPrice([entry(1, 0.33)], "sell", true)).toBe(1);
     expect(bestOrderPrice([entry(1, 0.33)], "buy", true)).toBe(1);
     expect(bestOrderPrice([entry(1, 0.33), entry(20)], "sell", true)).toBe(1);
+  });
+});
+
+describe("lowestIngameSellPrice", () => {
+  it("picks the lowest price strictly among ingame sellers", () => {
+    expect(
+      lowestIngameSellPrice([
+        { platinum: 5, unitPlatinum: 5, status: "offline" },
+        { platinum: 8, unitPlatinum: 8, status: "online" },
+        { platinum: 10, unitPlatinum: 10, status: "invisible" },
+        { platinum: 12, unitPlatinum: 12, status: null },
+        { platinum: 25, unitPlatinum: 25, status: "ingame" },
+        { platinum: 18, unitPlatinum: 18, status: "ingame" },
+      ]),
+    ).toBe(18);
+  });
+
+  it("returns null when no ingame listings exist", () => {
+    expect(lowestIngameSellPrice([])).toBeNull();
+    expect(
+      lowestIngameSellPrice([
+        { platinum: 10, unitPlatinum: 10, status: "online" },
+        { platinum: 12, unitPlatinum: 12, status: "offline" },
+      ]),
+    ).toBeNull();
+  });
+
+  it("uses rounded unitPlatinum clamped to the modal range", () => {
+    expect(
+      lowestIngameSellPrice([
+        { platinum: 97, unitPlatinum: 16.17, status: "ingame" },
+        { platinum: 30, unitPlatinum: 30, status: "ingame" },
+      ]),
+    ).toBe(16);
+    expect(lowestIngameSellPrice([{ platinum: 1, unitPlatinum: 0.33, status: "ingame" }])).toBe(1);
+    expect(
+      lowestIngameSellPrice([{ platinum: 150_000, unitPlatinum: 150_000, status: "ingame" }]),
+    ).toBe(99_999);
   });
 });
 

@@ -128,6 +128,18 @@ export function bestOrderPrice(
   return Math.max(1, Math.round(best));
 }
 
+/** Lowest per-item price among sell listings whose seller status is "ingame". */
+export function lowestIngameSellPrice(entries: readonly WfmOrderPriceEntry[]): number | null {
+  let lowest = Number.POSITIVE_INFINITY;
+  for (const entry of entries) {
+    if (entry.status !== "ingame") continue;
+    const price = listingUnitPrice(entry);
+    if (price < lowest) lowest = price;
+  }
+  if (!Number.isFinite(lowest)) return null;
+  return Math.min(99_999, Math.max(1, Math.round(lowest)));
+}
+
 function parseOrderRank(order: Record<string, unknown>): number | null {
   const rankRaw =
     typeof order.rank === "number"
