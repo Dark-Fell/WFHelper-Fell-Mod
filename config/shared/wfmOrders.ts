@@ -1,4 +1,4 @@
-import { toFinitePositiveInt } from "./numeric";
+import { normalizeRankFilter, resolveRankedMaxRank, toFinitePositiveInt } from "./numeric";
 
 export const WFM_ORDER_SUBTYPES = ["intact", "exceptional", "flawless", "radiant"] as const;
 export const WFM_MOD_VARIANTS = ["regular", "atragraph"] as const;
@@ -144,6 +144,43 @@ export function lowestIngameSellPrice(entries: readonly WfmOrderPriceEntry[]): n
 export function clampSellOrderQuantity(amount: number | null | undefined): number | null {
   if (typeof amount !== "number" || !Number.isFinite(amount) || amount < 1) return null;
   return Math.min(999, Math.floor(amount));
+}
+
+/** Resolves the max rank for a ranked item, falling back to book entries or group default. */
+export function resolveOrderBookMaxRank(
+  itemMaxRank: unknown,
+  inventoryGroup: string | null | undefined,
+  entries: readonly { rank: number | null }[] = [],
+): number {
+  const fromItem = toFinitePositiveInt(itemMaxRank);
+  if (fromItem != null) {
+    return normalizeRankFilter(fromItem) ?? resolveRankedMaxRank(inventoryGroup);
+  }
+  let highestSeen = 0;
+  for (const entry of entries) {
+    const rank = toFinitePositiveInt(entry.rank);
+    if (rank != null && rank > highestSeen) highestSeen = rank;
+  }
+  if (highestSeen > 0) {
+    return normalizeRankFilter(highestSeen) ?? resolveRankedMaxRank(inventoryGroup);
+  }
+  return resolveRankedMaxRank(inventoryGroup);
+}
+
+/** Resolves the active orderbook rank filter: null means all ranks ordered by price. */
+export function resolveOrderBookRequestRank(options: {
+  isRanked: boolean;
+  selectedRank: string;
+  maxedOnly: boolean;
+  maxRank: number;
+}): number | null {
+  if (!options.isRanked) return null;
+  if (options.maxedOnly) {
+    return options.maxRank > 0 ? options.maxRank : null;
+  }
+  const normalized = normalizeRankFilter(options.selectedRank);
+  if (normalized == null) return null;
+  return Math.max(0, Math.min(normalized, options.maxRank));
 }
 
 function parseOrderRank(order: Record<string, unknown>): number | null {

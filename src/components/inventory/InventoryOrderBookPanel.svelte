@@ -21,16 +21,14 @@
   } from "../../lib/wfm/orderBook.js";
   import type { InventoryViewItem } from "../../lib/inventoryMarket.js";
   import type { WfmLookupItem, OrderType } from "../../types/market.js";
-  import {
-    normalizeRankFilter,
-    isRankedGroup,
-    resolveRankedMaxRank,
-  } from "../../../config/shared/numeric.js";
+  import { normalizeRankFilter, isRankedGroup } from "../../../config/shared/numeric.js";
   import {
     clampSellOrderQuantity,
     formatUnitPlatinum,
     isActiveOrderStatus,
     lowestIngameSellPrice,
+    resolveOrderBookMaxRank,
+    resolveOrderBookRequestRank,
   } from "../../../config/shared/wfmOrders.js";
   import { ayatanSculptureBySlug } from "../../../config/shared/ayatanEndo.js";
   import { ayatanOrderWhisper } from "../../lib/wfm/ayatanListings.js";
@@ -78,7 +76,8 @@
   let onlineIngameOnly = true;
   let sellSort: SideSort = "best";
   let buySort: SideSort = "best";
-  let selectedRank = 0;
+  let selectedRank = "";
+  let maxedOnly = false;
 
   const didItemKeyChange = (() => {
     let previous = "";
@@ -109,9 +108,11 @@
 
   $: isRankedListingItem = isRankedGroup(item?.inventoryGroup);
   $: itemRankValue = normalizeRankFilter(item?.rank);
-  $: itemMaxRankValue = normalizeRankFilter(item?.maxRank);
   $: maxSelectableRank = isRankedListingItem
-    ? Math.max(0, itemMaxRankValue ?? resolveRankedMaxRank(item?.inventoryGroup))
+    ? resolveOrderBookMaxRank(item?.maxRank, item?.inventoryGroup, [
+        ...(orderBook?.sell ?? []),
+        ...(orderBook?.buy ?? []),
+      ])
     : 0;
   $: rankOptions = isRankedListingItem
     ? Array.from({ length: Math.max(1, maxSelectableRank + 1) }, (_, idx) => idx)
@@ -121,23 +122,43 @@
     ? `${item.internalName}:${item.rank}:${item.maxRank}:${item.inventoryGroup}`
     : "";
   $: if (didItemKeyChange(itemKey)) {
-    if (isRankedListingItem && item) {
-      const defaultRank = itemRankValue ?? 0;
-      selectedRank = Math.max(0, Math.min(defaultRank, maxSelectableRank));
-    } else {
-      selectedRank = 0;
-    }
+    selectedRank = "";
   }
 
   $: {
-    const normalized = normalizeRankFilter(selectedRank);
-    const bounded = Math.max(0, Math.min(normalized ?? 0, maxSelectableRank));
-    if (bounded !== selectedRank) {
-      selectedRank = bounded;
+    if (selectedRank !== "") {
+      const normalized = normalizeRankFilter(selectedRank);
+      if (normalized == null) {
+        selectedRank = "";
+      } else {
+        const bounded = String(Math.max(0, Math.min(normalized, maxSelectableRank)));
+        if (bounded !== selectedRank) {
+          selectedRank = bounded;
+        }
+      }
     }
   }
 
-  $: requestRank = isRankedListingItem ? (normalizeRankFilter(selectedRank) ?? 0) : null;
+  $: requestRank = resolveOrderBookRequestRank({
+    isRanked: isRankedListingItem,
+    selectedRank,
+    maxedOnly,
+    maxRank: maxSelectableRank,
+  });
+  $: displayedRankValue =
+    maxedOnly && maxSelectableRank > 0 ? String(maxSelectableRank) : selectedRank;
+
+  function handleRankSelectChange(event: Event): void {
+    const next = (event.currentTarget as HTMLSelectElement).value;
+    maxedOnly = false;
+    selectedRank = next;
+  }
+
+  function handleMaxedToggle(event: Event): void {
+    const checked = (event.currentTarget as HTMLInputElement).checked;
+    maxedOnly = checked;
+    selectedRank = "";
+  }
 
   $: filteredSellBase = filterStatus(orderBook?.sell ?? [], onlineIngameOnly);
   $: filteredBuyBase = filterStatus(orderBook?.buy ?? [], onlineIngameOnly);
@@ -389,8 +410,8 @@
   async function openPostOrder(orderType: "sell" | "buy"): Promise<void> {
     if (!currentSlug) return;
     const targetSlug = currentSlug;
-    const targetRank = requestRank;
-    const targetMaxRank = isRankedListingItem ? itemMaxRankValue : null;
+    const targetRank = isRankedListingItem ? (requestRank ?? itemRankValue ?? 0) : null;
+    const targetMaxRank = isRankedListingItem ? maxSelectableRank : null;
     const targetSubtype = itemSubtype;
     const suggestedPlatinum =
       orderType === "sell" ? lowestIngameSellPrice(orderBook?.sell ?? []) : null;
@@ -589,18 +610,41 @@
         </label>
         <div class="grid gap-1.5">
           {#if isRankedListingItem}
-            <label class="grid gap-1">
+            <div class="grid gap-1">
               <span class="text-xs uppercase tracking-[0.05em] text-text-muted"
                 >{$tr("orderbook.rankView")}</span
               >
-              <select class="inventory-orderbook-select" bind:value={selectedRank}>
-                {#each rankOptions as rankOption (rankOption)}
-                  <option value={rankOption}
-                    >{$tr("orderbook.rankOption", { rank: rankOption })}</option
+              <div class="flex items-center gap-2">
+                <select
+                  class="inventory-orderbook-select inventory-orderbook-select-compact"
+                  aria-label={$tr("orderbook.rankView")}
+                  data-orderbook-rank-select
+                  value={displayedRankValue}
+                  on:change={handleRankSelectChange}
+                >
+                  <option value="">{$tr("common.all")}</option>
+                  {#each rankOptions as rankOption (rankOption)}
+                    <option value={String(rankOption)}
+                      >{$tr("orderbook.rankOption", { rank: rankOption })}</option
+                    >
+                  {/each}
+                </select>
+                {#if maxSelectableRank > 0}
+                  <label
+                    class="inline-flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-text-secondary select-none"
+                    title={$tr("orderbook.rankOption", { rank: maxSelectableRank })}
                   >
-                {/each}
-              </select>
-            </label>
+                    <input
+                      type="checkbox"
+                      data-orderbook-maxed-only
+                      checked={maxedOnly}
+                      on:change={handleMaxedToggle}
+                    />
+                    <span>{$tr("browse.maxed")}</span>
+                  </label>
+                {/if}
+              </div>
+            </div>
           {/if}
           <div class="grid grid-cols-2 gap-1.5">
             <label class="grid gap-1">
@@ -693,6 +737,10 @@
     color: var(--text-primary);
     padding: 0.26rem 0.34rem;
     font-size: 0.72rem;
+  }
+  .inventory-orderbook-select-compact {
+    width: 7rem;
+    flex: 0 0 auto;
   }
   .inventory-orderbook-select:focus {
     outline: none;

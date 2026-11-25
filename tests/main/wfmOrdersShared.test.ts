@@ -7,6 +7,8 @@ import {
   lowestIngameSellPrice,
   normalizePerTrade,
   normalizeWfmOrderBookSide,
+  resolveOrderBookMaxRank,
+  resolveOrderBookRequestRank,
 } from "../../config/shared/wfmOrders";
 
 function buyOrder(overrides: Record<string, unknown>): Record<string, unknown> {
@@ -187,6 +189,79 @@ describe("clampSellOrderQuantity", () => {
     for (const value of [null, undefined, 0, -5, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(clampSellOrderQuantity(value)).toBeNull();
     }
+  });
+});
+
+describe("resolveOrderBookMaxRank", () => {
+  it("uses the item maxRank when positive, adapting to 3, 5 or 10", () => {
+    expect(resolveOrderBookMaxRank(3, "mods")).toBe(3);
+    expect(resolveOrderBookMaxRank(5, "arcanes")).toBe(5);
+    expect(resolveOrderBookMaxRank(10, "mods")).toBe(10);
+  });
+
+  it("falls back to highest rank seen in the book, then the group default", () => {
+    expect(resolveOrderBookMaxRank(0, "mods", [{ rank: 0 }, { rank: 3 }, { rank: 5 }])).toBe(5);
+    expect(resolveOrderBookMaxRank(null, "mods", [])).toBe(10);
+    expect(resolveOrderBookMaxRank(undefined, "arcanes", [])).toBe(5);
+  });
+});
+
+describe("resolveOrderBookRequestRank", () => {
+  it("keeps rank filter disabled when nothing is chosen", () => {
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: true,
+        selectedRank: "",
+        maxedOnly: false,
+        maxRank: 10,
+      }),
+    ).toBeNull();
+  });
+
+  it("uses the item max rank when maxedOnly is checked", () => {
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: true,
+        selectedRank: "",
+        maxedOnly: true,
+        maxRank: 3,
+      }),
+    ).toBe(3);
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: true,
+        selectedRank: "2",
+        maxedOnly: true,
+        maxRank: 10,
+      }),
+    ).toBe(10);
+  });
+
+  it("clamps a manually chosen rank and returns null for unranked items", () => {
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: true,
+        selectedRank: "4",
+        maxedOnly: false,
+        maxRank: 5,
+      }),
+    ).toBe(4);
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: true,
+        selectedRank: "10",
+        maxedOnly: false,
+        maxRank: 5,
+      }),
+    ).toBe(5);
+    expect(
+      resolveOrderBookRequestRank({
+        isRanked: false,
+        selectedRank: "3",
+        maxedOnly: true,
+        maxRank: 5,
+      }),
+    ).toBeNull();
   });
 });
 

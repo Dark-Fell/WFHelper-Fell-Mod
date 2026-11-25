@@ -107,12 +107,12 @@ test("inventory resolves missing Nightwave metadata and keeps catalog entries un
     await expect(panel).toContainText("Prototype Shock Coils");
     await expect(panel.locator('[data-orderbook-unit-plat="18"]')).toBeVisible();
     const ranks = panel.locator("select.inventory-orderbook-select").first();
-    await expect(ranks.locator("option")).toHaveCount(6);
+    await expect(ranks.locator("option")).toHaveCount(7);
     expect(
       await ranks
         .locator("option")
         .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value)),
-    ).toEqual(["0", "1", "2", "3", "4", "5"]);
+    ).toEqual(["", "0", "1", "2", "3", "4", "5"]);
     await page.screenshot({ path: test.info().outputPath("prototype-shock-coils.png") });
     await page.locator("[data-orderbook-close]").click();
 
