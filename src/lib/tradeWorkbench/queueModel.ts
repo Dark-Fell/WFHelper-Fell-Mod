@@ -337,9 +337,15 @@ export function attachMarketData(
 ): WorkbenchQueueRow {
   let market: WorkbenchMarketInfo | null = null;
   if (sellBook) {
-    const activeSell = sellBook.filter((entry) => isActiveOrderStatus(entry.status));
+    const matchesRowRank = (entry: PricingListing): boolean =>
+      row.rank == null || entry.rank === undefined || entry.rank === row.rank;
+    const activeSell = sellBook.filter(
+      (entry) => isActiveOrderStatus(entry.status) && matchesRowRank(entry),
+    );
     const lowestSell = activeSell.length > 0 ? Math.min(...activeSell.map(listingUnitPrice)) : null;
-    const activeBuy = (buyBook ?? []).filter((entry) => isActiveOrderStatus(entry.status));
+    const activeBuy = (buyBook ?? []).filter(
+      (entry) => isActiveOrderStatus(entry.status) && matchesRowRank(entry),
+    );
     const highestBuy = activeBuy.length > 0 ? Math.max(...activeBuy.map(listingUnitPrice)) : null;
     market = {
       lowestSell,
@@ -433,6 +439,7 @@ export function applyStrategy(
       currentPrice: row.existingOrder?.platinum ?? null,
       ownPerTrade: row.existingOrder?.perTrade ?? 1,
       ownUserName,
+      targetRank: row.rank,
       median,
     },
     damping,

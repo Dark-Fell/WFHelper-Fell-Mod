@@ -48,4 +48,10 @@
     color: var(--accent-bright);
     text-decoration: underline;
   }
+
+  select option,
+  select optgroup {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
 }

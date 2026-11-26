@@ -9,6 +9,7 @@ export interface PricingListing extends UnitPricedListing {
   quantity: number;
   status: string | null;
   userName: string;
+  rank?: number | null;
 }
 
 export interface PricingContext {
@@ -16,6 +17,7 @@ export interface PricingContext {
   currentPrice: number | null;
   ownPerTrade?: number | null;
   ownUserName?: string | null;
+  targetRank?: number | null;
   activeOnly?: boolean;
   /** Sale-price reference for a median strategy; the listing book never sets it. */
   median?: MedianReference | null;
@@ -96,13 +98,20 @@ export interface PriceSuggestion {
   damping?: { applied: true; reason: WorkbenchDampingReason; undampedPrice: number };
 }
 
-function competition(ctx: PricingContext): PricingListing[] {
+function competition(ctx: PricingContext, matchCheapest: boolean): PricingListing[] {
   const activeOnly = ctx.activeOnly !== false;
   const own = ctx.ownUserName ? ctx.ownUserName.toLowerCase() : null;
   return ctx.sellListings
     .filter((listing) => {
       if (own && listing.userName.toLowerCase() === own) return false;
-      if (activeOnly && !isActiveOrderStatus(listing.status)) return false;
+      if (activeOnly) {
+        if (matchCheapest ? listing.status !== "ingame" : !isActiveOrderStatus(listing.status)) {
+          return false;
+        }
+      }
+      if (!matchCheapest && ctx.targetRank != null && listing.rank !== undefined) {
+        if (listing.rank !== ctx.targetRank) return false;
+      }
       return listingUnitPrice(listing) > 0;
     })
     .sort((a, b) => listingUnitPrice(a) - listingUnitPrice(b));
@@ -183,7 +192,7 @@ export function suggestPrice(
   ctx: PricingContext,
   rule: DampingRule = DEFAULT_DAMPING_RULE,
 ): PriceSuggestion {
-  const book = competition(ctx);
+  const book = competition(ctx, config.id === "match-cheapest");
   const perTrade = normalizePerTrade(ctx.ownPerTrade);
   const listPrice = (unitValue: number): number | null => clampPrice(unitValue * perTrade);
   const cheapest = book.length > 0 ? listingUnitPrice(book[0]) : null;

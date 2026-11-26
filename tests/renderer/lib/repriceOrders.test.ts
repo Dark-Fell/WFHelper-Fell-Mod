@@ -119,6 +119,25 @@ describe("priceRepriceRow", () => {
     expect(priced.skipReason).toBeNull();
   });
 
+  it("ignores ranks for match-cheapest when the book carries multiple ranks", () => {
+    const rankedBase = buildRepriceRows([order({ platinum: 50, modRank: 10 })])[0];
+    const row = {
+      ...rankedBase,
+      sellBook: [
+        { ...listing(44), rank: 0 },
+        { ...listing(46), rank: 5 },
+        { ...listing(48), rank: 8 },
+        { ...listing(60), rank: 10 },
+      ],
+    };
+    const priced = priceRepriceRow(row, { id: "match-cheapest" }, null);
+    expect(priced.nextPrice).toBe(44);
+    expect(priced.skipReason).toBeNull();
+
+    const minusOne = priceRepriceRow(row, { id: "cheapest-minus-one" }, null);
+    expect(minusOne.nextPrice).toBe(59);
+  });
+
   it("prices a median strategy from its reference, not a lone 1p seller", () => {
     const row = { ...base, sellBook: [listing(1, "undercutter"), listing(58), listing(61)] };
     const config = { id: "median-90d", offsetPlat: -1 } as const;

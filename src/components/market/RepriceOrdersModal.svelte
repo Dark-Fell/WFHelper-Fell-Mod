@@ -55,13 +55,17 @@
   const FIELD =
     "rounded-[var(--radius-md)] border border-[color:var(--ui-control-border)] " +
     "bg-[var(--ui-control-bg)] px-2 py-1 text-sm text-text-primary";
+  const SELECT_FIELD =
+    "rounded-[var(--radius-md)] border border-[color:var(--ui-control-border)] " +
+    "bg-bg-surface px-2 py-1 text-sm text-text-primary " +
+    "[&_option]:bg-bg-surface [&_option]:text-text-primary";
 
   // "manual" has no per-row price field here, so it can never decide a price.
   const STRATEGIES = WORKBENCH_STRATEGY_IDS.filter((id) => id !== "manual");
 
   // svelte-ignore state_referenced_locally
   let rows = $state<RepriceRow[]>(buildRepriceRows(orders));
-  let strategyId = $state<WorkbenchStrategyId>("cheapest-minus-one");
+  let strategyId = $state<WorkbenchStrategyId>("match-cheapest");
   let percentOffset = $state(-5);
   let averageCount = $state(3);
   let averageThreshold = $state(30);
@@ -187,7 +191,7 @@
     try {
       await loadQueueMarketData(pending, {
         isCancelled: () => cancelled,
-        fetchBook: fetchRowBook,
+        fetchBook: (target) => fetchRowBook({ ...target, rank: null }),
         onRow: (row, book) => {
           loaded += 1;
           const index = rows.findIndex((entry) => entry.rowId === row.rowId);
@@ -267,7 +271,7 @@
     <div class="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
       <label class="flex flex-col gap-1 text-xs text-text-secondary">
         {$tr("workbench.strategyLabel")}
-        <select class="{FIELD} w-52" data-reprice-strategy bind:value={strategyId}>
+        <select class="{SELECT_FIELD} w-52" data-reprice-strategy bind:value={strategyId}>
           {#each STRATEGIES as id (id)}
             <option value={id}>{$tr(STRATEGY_KEYS[id])}</option>
           {/each}
@@ -359,7 +363,7 @@
       </div>
       <label class="flex flex-col gap-1 text-xs text-text-secondary">
         {$tr("market.reprice.showLabel")}
-        <select class="{FIELD} w-40" data-reprice-show bind:value={showMode}>
+        <select class="{SELECT_FIELD} w-40" data-reprice-show bind:value={showMode}>
           <option value="all">{$tr("common.all")}</option>
           <option value="changed">{$tr("market.reprice.showChanged")}</option>
           <option value="skipped">{$tr("market.reprice.showSkipped")}</option>

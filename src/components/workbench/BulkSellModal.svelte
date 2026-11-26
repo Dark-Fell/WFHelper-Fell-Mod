@@ -318,7 +318,7 @@
     try {
       const summary = await loadQueueMarketData(targets, {
         isCancelled: () => marketAbort,
-        fetchBook: fetchRowBook,
+        fetchBook: (target) => fetchRowBook({ ...target, rank: null }),
         onRow: (target, book) => {
           marketDone += 1;
           const current = rows.find((row) => row.rowId === target.rowId);

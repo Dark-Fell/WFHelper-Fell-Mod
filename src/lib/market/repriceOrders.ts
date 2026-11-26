@@ -66,6 +66,7 @@ export function priceRepriceRow(
       currentPrice: row.currentPrice,
       ownPerTrade: row.order.perTrade ?? 1,
       ownUserName,
+      targetRank: row.rank,
       median,
     },
     rule,

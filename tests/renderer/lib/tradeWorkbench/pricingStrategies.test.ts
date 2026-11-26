@@ -76,6 +76,50 @@ describe("workbench pricing strategies", () => {
     expect(result.inputs.listingsConsidered).toBe(1);
   });
 
+  it("match-cheapest ignores online-only sellers and requires ingame listings", () => {
+    const withIngame = suggestPrice(
+      { id: "match-cheapest" },
+      ctx([
+        listing(10, { status: "online" }),
+        listing(12, { status: "offline" }),
+        listing(22, { status: "ingame" }),
+      ]),
+    );
+    expect(withIngame.price).toBe(22);
+    expect(withIngame.inputs.cheapest).toBe(22);
+    expect(withIngame.inputs.listingsConsidered).toBe(1);
+
+    const onlyOnline = suggestPrice(
+      { id: "match-cheapest" },
+      ctx([listing(10, { status: "online" }), listing(15, { status: "online" })]),
+    );
+    expect(onlyOnline.price).toBeNull();
+    expect(onlyOnline.inputs.listingsConsidered).toBe(0);
+
+    const otherStrategy = suggestPrice(
+      { id: "cheapest-minus-one" },
+      ctx([listing(10, { status: "online" }), listing(22, { status: "ingame" })]),
+    );
+    expect(otherStrategy.price).toBe(9);
+  });
+
+  it("match-cheapest ignores ranks while other strategies filter by targetRank", () => {
+    const book = [
+      listing(12, { status: "ingame", rank: 0 }),
+      listing(15, { status: "ingame", rank: 5 }),
+      listing(40, { status: "ingame", rank: 10 }),
+    ];
+
+    const match = suggestPrice({ id: "match-cheapest" }, ctx(book, { targetRank: 10 }));
+    expect(match.price).toBe(12);
+    expect(match.inputs.cheapest).toBe(12);
+    expect(match.inputs.listingsConsidered).toBe(3);
+
+    const minusOne = suggestPrice({ id: "cheapest-minus-one" }, ctx(book, { targetRank: 10 }));
+    expect(minusOne.price).toBe(39);
+    expect(minusOne.inputs.listingsConsidered).toBe(1);
+  });
+
   it("cheapest-minus-one floors at 1 platinum", () => {
     expect(suggestPrice({ id: "cheapest-minus-one" }, ctx([listing(1)])).price).toBe(1);
     expect(suggestPrice({ id: "cheapest-minus-one" }, ctx([listing(15)])).price).toBe(14);
